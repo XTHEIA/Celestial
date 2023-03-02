@@ -44,6 +44,8 @@ class _GameCellophaneState extends State<GameCellophane> {
         mainWidget = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const Text("더 밝은 색을 찾으세요."),
+            const SizedBox(height: 20),
             MaterialButton(
               minWidth: 200,
               color: Colors.blue,
@@ -101,13 +103,8 @@ class _GameCellophaneState extends State<GameCellophane> {
     }
     ;
 
-    return MaterialApp(
-      theme: Theme.of(context),
-      home: Scaffold(
-        body: Center(
-          child: mainWidget,
-        ),
-      ),
+    return Center(
+      child: mainWidget,
     );
   }
 }
