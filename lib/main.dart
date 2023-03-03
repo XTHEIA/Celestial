@@ -1,9 +1,13 @@
 import 'package:celestial/game_cellophane.dart';
+import 'package:celestial/game_rgbfind.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   runApp(const CelestialApp());
 }
+
+bool cheat = false;
 
 class CelestialApp extends StatelessWidget {
   const CelestialApp({Key? key}) : super(key: key);
@@ -11,8 +15,10 @@ class CelestialApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: "Celestial",
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark(),
+      color: Colors.blue,
       home: const CelestialHome(),
     );
   }
@@ -28,13 +34,23 @@ class CelestialHome extends StatefulWidget {
 class _CelestialHomeState extends State<CelestialHome> {
   static final List<_Game> games = [
     _Game("Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
+    _Game("RGB Find", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Celestial MiniGames"),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text("Celestial MiniGames"),
+            Switch(
+              value: cheat,
+              onChanged: (v) => setState(() => cheat = v),
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: games.length,
@@ -46,10 +62,10 @@ class _CelestialHomeState extends State<CelestialHome> {
             subtitle: Text(game.description),
             onTap: () => Navigator.push(
                 ctx,
-                MaterialPageRoute(
+                CupertinoPageRoute(
                     builder: (ctx) => Scaffold(
                         appBar: AppBar(
-                          title: Text(game.name),
+                          title: Text("${cheat ? "(Cheat Mode) " : ""}${game.name}"),
                         ),
                         body: game.scene(ctx)),
                     fullscreenDialog: false,

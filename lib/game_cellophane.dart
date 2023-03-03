@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:celestial/main.dart';
 import 'package:flutter/material.dart';
 
 class GameCellophane extends StatefulWidget {
@@ -23,6 +24,7 @@ class _GameCellophaneState extends State<GameCellophane> {
       highlightColor: color,
       height: 100,
       minWidth: 100,
+      child: cheat ? Text(color.computeLuminance().toStringAsFixed(2)) : null,
       onPressed: () {
         setState(() {
           if (isAnswer) {
