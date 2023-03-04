@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:celestial/Cellophane.dart';
 import 'package:celestial/main.dart';
 import 'package:flutter/material.dart';
 
@@ -19,11 +20,8 @@ class _GameCellophaneState extends State<GameCellophane> {
   }
 
   Widget createChoice(Color color, bool isAnswer, int score) {
-    return MaterialButton(
+    return Cellophane(
       color: color,
-      highlightColor: color,
-      height: 100,
-      minWidth: 100,
       child: cheat ? Text(color.computeLuminance().toStringAsFixed(2)) : null,
       onPressed: () {
         setState(() {
@@ -48,10 +46,7 @@ class _GameCellophaneState extends State<GameCellophane> {
           children: [
             const Text("더 밝은 색을 찾으세요."),
             const SizedBox(height: 20),
-            MaterialButton(
-              minWidth: 200,
-              color: Colors.blue,
-              child: const Text("START"),
+            createGameStartButton(
               onPressed: () => setState(() => state = _State.GAMING),
             ),
           ],

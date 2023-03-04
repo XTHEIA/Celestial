@@ -2,6 +2,8 @@
 
 import 'dart:math' as math;
 import 'package:calc/calc.dart';
+import 'package:celestial/Cellophane.dart';
+import 'package:celestial/main.dart';
 
 import 'package:flutter/material.dart';
 
@@ -22,20 +24,20 @@ class _GameFindRGBState extends State<GameFindRGB> {
 
     switch (gameState) {
       case _State.READY:
-        body = MaterialButton(
-          color: Colors.blue,
+        body = createGameStartButton(
           onPressed: () => setState(() => gameState = _State.GAME),
         );
         break;
       case _State.GAME:
-        final newQuestion = _Question.random(2);
+        final newQuestion = _Question.random(4);
         final colors = newQuestion.colors;
         final count = colors.length;
-        final List<Widget> tiles = List.filled(count, Placeholder());
+        final find = newQuestion.find;
+        final List<Widget> tiles = List.empty(growable: true);
         for (int i = 0; i < count; i += 1) {
           final isAnswer = newQuestion.answerIdx == i;
           final color = colors[i];
-          tiles[i] = MaterialButton(
+          tiles.add(Cellophane(
             color: color,
             onPressed: () {
               if (isAnswer) {
@@ -44,13 +46,36 @@ class _GameFindRGBState extends State<GameFindRGB> {
                 setState(() => gameState = _State.OVER);
               }
             },
-          );
+            child: (cheat)
+                ? Column(
+                    children: [
+                      Text(isAnswer ? "ANSWER" : ""),
+                      Text("${color.red},${color.green},${color.blue}"),
+                    ],
+                  )
+                : null,
+          ));
+          if (i != count - 1) {
+            tiles.add(const SizedBox(width: 50));
+          }
         }
         body = Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("pick " + newQuestion.find.toString()),
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('다음 색들 중 '),
+                Text(
+                  find.name,
+                  style: TextStyle(color: find.color),
+                ),
+                Text('이 가장 많이 포함 된 색은 무엇인가요?'),
+              ],
+            ),
+            const SizedBox(height: 50),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: tiles,
             )
           ],
@@ -97,7 +122,7 @@ class _Question {
       }
       elementValues[i] = val;
     }
-    final difficulty = elementValues.standardDeviation() ~/ 0.01;
+    final difficulty = elementValues.standardDeviation() ~/ 1;
     final findE = _RGB.values[math.Random().nextInt(3)];
     final colors = elementValues.map((e) {
       switch (findE) {
@@ -115,7 +140,13 @@ class _Question {
 }
 
 enum _RGB {
-  R,
-  G,
-  B,
+  R('빨강', Color.fromARGB(255, 255, 0, 0)),
+  G('초록', Color.fromARGB(255, 0, 255, 0)),
+  B('파랑', Color.fromARGB(255, 0, 0, 255)),
+  ;
+
+  final String name;
+  final Color color;
+
+  const _RGB(this.name, this.color);
 }

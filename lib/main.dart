@@ -1,4 +1,5 @@
 import 'package:celestial/game_cellophane.dart';
+import 'package:celestial/game_presskey.dart';
 import 'package:celestial/game_rgbfind.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,12 @@ void main() {
 }
 
 bool cheat = false;
+
+final List<_Game> _games = [
+  _Game("brighter", "Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
+  _Game("rgb_element", "RGB Find", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
+  _Game("key_press", "Key Press", "key input", (ctx) => const GameKeyPress()),
+];
 
 class CelestialApp extends StatelessWidget {
   const CelestialApp({Key? key}) : super(key: key);
@@ -32,11 +39,6 @@ class CelestialHome extends StatefulWidget {
 }
 
 class _CelestialHomeState extends State<CelestialHome> {
-  static final List<_Game> games = [
-    _Game("Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
-    _Game("RGB Find", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,9 +55,9 @@ class _CelestialHomeState extends State<CelestialHome> {
         ),
       ),
       body: ListView.builder(
-        itemCount: games.length,
+        itemCount: _games.length,
         itemBuilder: (ctx, idx) {
-          final game = games[idx];
+          final game = _games[idx];
           return ListTile(
             leading: const FlutterLogo(),
             title: Text(game.name),
@@ -67,7 +69,9 @@ class _CelestialHomeState extends State<CelestialHome> {
                         appBar: AppBar(
                           title: Text("${cheat ? "(Cheat Mode) " : ""}${game.name}"),
                         ),
-                        body: game.scene(ctx)),
+                        body: Center(
+                          child: game.scene(ctx),
+                        )),
                     fullscreenDialog: false,
                     settings: RouteSettings(name: "/${game.name}"))),
           );
@@ -78,12 +82,31 @@ class _CelestialHomeState extends State<CelestialHome> {
 }
 
 class _Game {
+  String id;
   String name;
   String description;
-  Func<BuildContext, Widget> scene;
+  Widget Function(BuildContext context) scene;
 
-  _Game(this.name, this.description, this.scene);
+  _Game(this.id, this.name, this.description, this.scene);
 }
 
-typedef Supplier<T> = T Function();
-typedef Func<P, R> = R Function(P param);
+// typedef Supplier<T> = T Function();
+// typedef Func<P, R> = R Function(P param);
+
+MaterialButton createGameStartButton({void Function()? onPressed}) {
+  return MaterialButton(
+    onPressed: onPressed,
+    minWidth: 200,
+    color: Colors.blue,
+    child: const Text("START"),
+  );
+}
+
+MaterialButton createCellophane(Color color, void Function() onPressed) {
+  return MaterialButton(
+    height: 100,
+    minWidth: 100,
+    color: color,
+    onPressed: onPressed,
+  );
+}
