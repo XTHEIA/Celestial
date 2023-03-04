@@ -29,7 +29,7 @@ class _GameFindRGBState extends State<GameFindRGB> {
         );
         break;
       case _State.GAME:
-        final newQuestion = _Question.random(4);
+        final newQuestion = _Question.random(math.Random().nextInt(4) + 2);
         final colors = newQuestion.colors;
         final count = colors.length;
         final find = newQuestion.find;
@@ -56,7 +56,7 @@ class _GameFindRGBState extends State<GameFindRGB> {
                 : null,
           ));
           if (i != count - 1) {
-            tiles.add(const SizedBox(width: 50));
+            tiles.add(const SizedBox(width: 20));
           }
         }
         body = Column(
@@ -68,7 +68,7 @@ class _GameFindRGBState extends State<GameFindRGB> {
                 Text('다음 색들 중 '),
                 Text(
                   find.name,
-                  style: TextStyle(color: find.color),
+                  style: TextStyle(color: find.color, fontSize: 25),
                 ),
                 Text('이 가장 많이 포함 된 색은 무엇인가요?'),
               ],

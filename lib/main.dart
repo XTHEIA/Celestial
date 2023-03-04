@@ -5,6 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main() {
+  _routes.clear();
+  _routes.addAll({
+    "/": (ctx) => const CelestialHome(),
+  });
+
+  for (var game in _games) {
+    _routes.addAll({
+      "/game/${game.id}": game.route,
+    });
+  }
   runApp(const CelestialApp());
 }
 
@@ -12,9 +22,10 @@ bool cheat = false;
 
 final List<_Game> _games = [
   _Game("brighter", "Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
-  _Game("rgb_element", "RGB Find", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
+  _Game("rgb_element", "RGB Find (매우 어려움)", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
   _Game("key_press", "Key Press", "key input", (ctx) => const GameKeyPress()),
 ];
+final Map<String, Widget Function(BuildContext context)> _routes = {};
 
 class CelestialApp extends StatelessWidget {
   const CelestialApp({Key? key}) : super(key: key);
@@ -26,7 +37,8 @@ class CelestialApp extends StatelessWidget {
       themeMode: ThemeMode.dark,
       darkTheme: ThemeData.dark(),
       color: Colors.blue,
-      home: const CelestialHome(),
+      initialRoute: "/",
+      routes: _routes,
     );
   }
 }
@@ -62,18 +74,7 @@ class _CelestialHomeState extends State<CelestialHome> {
             leading: const FlutterLogo(),
             title: Text(game.name),
             subtitle: Text(game.description),
-            onTap: () => Navigator.push(
-                ctx,
-                CupertinoPageRoute(
-                    builder: (ctx) => Scaffold(
-                        appBar: AppBar(
-                          title: Text("${cheat ? "(Cheat Mode) " : ""}${game.name}"),
-                        ),
-                        body: Center(
-                          child: game.scene(ctx),
-                        )),
-                    fullscreenDialog: false,
-                    settings: RouteSettings(name: "/${game.name}"))),
+            onTap: () => Navigator.pushNamed(ctx, "/game/${game.id}"),
           );
         },
       ),
@@ -86,6 +87,16 @@ class _Game {
   String name;
   String description;
   Widget Function(BuildContext context) scene;
+  late Widget Function(BuildContext context) route = (ctx) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("${cheat ? "(Cheat Mode) " : ""}$name"),
+      ),
+      body: Center(
+        child: scene(ctx),
+      ),
+    );
+  };
 
   _Game(this.id, this.name, this.description, this.scene);
 }
