@@ -1,5 +1,6 @@
 import 'package:celestial/game_cellophane.dart';
 import 'package:celestial/game_color1.dart';
+import 'package:celestial/game_hidden.dart';
 import 'package:celestial/game_presskey.dart';
 import 'package:celestial/game_rgbfind.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +9,8 @@ import 'package:flutter/material.dart';
 void main() {
   _routes.clear();
   _routes.addAll({
-    "/": (ctx) => const CelestialHome(),
+    "/": (ctx) => const MainPage(),
+    "/games": (ctx) => const Games(),
   });
 
   for (var game in _games) {
@@ -27,6 +29,7 @@ final List<_Game> _games = [
   _Game("key_press", "Key Press", "key input", (ctx) => const GameKeyPress()),
   _Game("color1", "Color 1", "test game", (ctx) => const ColorGame())
 ];
+final _gamesCount = _games.length;
 final Map<String, Widget Function(BuildContext context)> _routes = {};
 
 class CelestialApp extends StatelessWidget {
@@ -36,49 +39,98 @@ class CelestialApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Celestial",
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.light,
       darkTheme: ThemeData.dark(),
-      color: Colors.blue,
       initialRoute: "/",
       routes: _routes,
     );
   }
 }
 
-class CelestialHome extends StatefulWidget {
-  const CelestialHome({Key? key}) : super(key: key);
+class MainPage extends StatefulWidget {
+  const MainPage({Key? key}) : super(key: key);
 
   @override
-  State<CelestialHome> createState() => _CelestialHomeState();
+  State<MainPage> createState() => _MainPageState();
 }
 
-class _CelestialHomeState extends State<CelestialHome> {
+class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Celestial MiniGames"),
-            Switch(
-              value: cheat,
-              onChanged: (v) => setState(() => cheat = v),
-            ),
+            Text('main page'),
+            MaterialButton(child: Text('games'), onPressed: () => Navigator.pushNamed(context, "/games"))
           ],
         ),
       ),
-      body: ListView.builder(
-        itemCount: _games.length,
-        itemBuilder: (ctx, idx) {
-          final game = _games[idx];
-          return ListTile(
-            leading: const FlutterLogo(),
-            title: Text(game.name),
-            subtitle: Text(game.description),
-            onTap: () => Navigator.pushNamed(ctx, "/game/${game.id}"),
-          );
-        },
+    );
+  }
+}
+
+class Games extends StatefulWidget {
+  const Games({Key? key}) : super(key: key);
+
+  @override
+  State<Games> createState() => _GamesState();
+}
+
+class _GamesState extends State<Games> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      // appBar: AppBar(
+      //   backgroundColor: Colors.white,
+      //   title: Row(
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     children: [
+      //       Text("Celestial MiniGames"),
+      //       Switch(
+      //         value: cheat,
+      //         onChanged: (v) => setState(() => cheat = v),
+      //       ),
+      //     ],
+      //   ),
+      // ),
+      body: Column(
+        children: [
+          Text('${_gamesCount}개의 게임이 있습니다.'),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _gamesCount + 500,
+              itemBuilder: (ctx, idx) {
+                if (idx >= _gamesCount) {
+                  final hidden = idx == 150;
+                  return ListTile(
+                    leading: const FlutterLogo(),
+                    title: Text('empty game $idx'),
+                    subtitle: Text('subtitle'),
+                    onTap: hidden
+                        ? () => Navigator.push(ctx, MaterialPageRoute(builder: (ctx) => GameHidden()))
+                        : () => ScaffoldMessenger.of(ctx).showSnackBar(
+                              const SnackBar(
+                                showCloseIcon: true,
+                                content: Text('no game!'),
+                                duration: Duration(milliseconds: 650),
+                              ),
+                            ),
+                  );
+                }
+                final game = _games[idx];
+                return ListTile(
+                  leading: const FlutterLogo(),
+                  title: Text("$idx : ${game.name}"),
+                  subtitle: Text(game.description),
+                  onTap: () => Navigator.pushNamed(ctx, "/game/${game.id}"),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
