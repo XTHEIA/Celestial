@@ -25,7 +25,7 @@ final List<_Game> _games = [
   _Game("brighter", "Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
   _Game("rgb_element", "RGB Find (매우 어려움)", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
   _Game("key_press", "Key Press", "key input", (ctx) => const GameKeyPress()),
-  _Game("color1","Color 1","test game", (ctx) => const ColorGame())
+  _Game("color1", "Color 1", "test game", (ctx) => const ColorGame())
 ];
 final Map<String, Widget Function(BuildContext context)> _routes = {};
 

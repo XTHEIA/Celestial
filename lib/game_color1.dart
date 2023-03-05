@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-void main() => runApp(ColorGame());
 
 class ColorGame extends StatelessWidget {
   const ColorGame({super.key});
