@@ -1,19 +1,18 @@
-import 'package:celestial/game_cellophane.dart';
-import 'package:celestial/game_color1.dart';
-import 'package:celestial/game_hidden.dart';
-import 'package:celestial/game_presskey.dart';
-import 'package:celestial/game_rgbfind.dart';
-import 'package:flutter/cupertino.dart';
+import 'dart:io';
+
+import 'package:celestial/game/game.dart';
+import 'package:celestial/game/game_hidden.dart';
+import 'package:celestial/page_games.dart';
 import 'package:flutter/material.dart';
 
 void main() {
   _routes.clear();
   _routes.addAll({
-    "/": (ctx) => const MainPage(),
-    "/games": (ctx) => const Games(),
+    "/": (ctx) => const HomePage(),
+    "/games": (ctx) => const GamesPage(),
   });
 
-  for (var game in _games) {
+  for (var game in games) {
     _routes.addAll({
       "/game/${game.id}": game.route,
     });
@@ -23,13 +22,6 @@ void main() {
 
 bool cheat = false;
 
-final List<_Game> _games = [
-  _Game("brighter", "Cellophane", "더 밝게 보이는 색 찾기", (ctx) => const GameCellophane()),
-  _Game("rgb_element", "RGB Find (매우 어려움)", "특정 RGB 요소의 비율 찾아내기", (ctx) => const GameFindRGB()),
-  _Game("key_press", "Key Press", "key input", (ctx) => const GameKeyPress()),
-  _Game("color1", "Color 1", "test game", (ctx) => const ColorGame())
-];
-final _gamesCount = _games.length;
 final Map<String, Widget Function(BuildContext context)> _routes = {};
 
 class CelestialApp extends StatelessWidget {
@@ -40,6 +32,7 @@ class CelestialApp extends StatelessWidget {
     return MaterialApp(
       title: "Celestial",
       themeMode: ThemeMode.light,
+      theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       initialRoute: "/",
       routes: _routes,
@@ -47,112 +40,66 @@ class CelestialApp extends StatelessWidget {
   }
 }
 
-class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _HomePageState extends State<HomePage> {
+  Widget _createNavigatorButton(String name, String nav) {
+    return MaterialButton(
+      child: Text(name, style: const TextStyle(fontSize: 30)),
+      height: 55,
+      minWidth: 500,
+      onPressed: () => Navigator.pushNamed(context, nav),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('main page'),
-            MaterialButton(child: Text('games'), onPressed: () => Navigator.pushNamed(context, "/games"))
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                Text('top bar'),
+                const SizedBox(height: 180),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                        height: 120,
+                        child: FlutterLogo(
+                          size: double.infinity,
+                          duration: Duration(seconds: 2),
+                          style: FlutterLogoStyle.horizontal,
+                        )),
+                    Text('v1.0.0'),
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                _createNavigatorButton("게임 목록", "/games"),
+                _createNavigatorButton("버튼 2", "2"),
+                _createNavigatorButton("버튼 2", "2"),
+                _createNavigatorButton("버튼 2", "2"),
+                const SizedBox(height: 150),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
-}
-
-class Games extends StatefulWidget {
-  const Games({Key? key}) : super(key: key);
-
-  @override
-  State<Games> createState() => _GamesState();
-}
-
-class _GamesState extends State<Games> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   title: Row(
-      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      //     children: [
-      //       Text("Celestial MiniGames"),
-      //       Switch(
-      //         value: cheat,
-      //         onChanged: (v) => setState(() => cheat = v),
-      //       ),
-      //     ],
-      //   ),
-      // ),
-      body: Column(
-        children: [
-          Text('${_gamesCount}개의 게임이 있습니다.'),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _gamesCount + 500,
-              itemBuilder: (ctx, idx) {
-                if (idx >= _gamesCount) {
-                  final hidden = idx == 150;
-                  return ListTile(
-                    leading: const FlutterLogo(),
-                    title: Text('empty game $idx'),
-                    subtitle: Text('subtitle'),
-                    onTap: hidden
-                        ? () => Navigator.push(ctx, MaterialPageRoute(builder: (ctx) => GameHidden()))
-                        : () => ScaffoldMessenger.of(ctx).showSnackBar(
-                              const SnackBar(
-                                showCloseIcon: true,
-                                content: Text('no game!'),
-                                duration: Duration(milliseconds: 650),
-                              ),
-                            ),
-                  );
-                }
-                final game = _games[idx];
-                return ListTile(
-                  leading: const FlutterLogo(),
-                  title: Text("$idx : ${game.name}"),
-                  subtitle: Text(game.description),
-                  onTap: () => Navigator.pushNamed(ctx, "/game/${game.id}"),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Game {
-  String id;
-  String name;
-  String description;
-  Widget Function(BuildContext context) scene;
-  late Widget Function(BuildContext context) route = (ctx) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("${cheat ? "(Cheat Mode) " : ""}$name"),
-      ),
-      body: Center(
-        child: scene(ctx),
-      ),
-    );
-  };
-
-  _Game(this.id, this.name, this.description, this.scene);
 }
 
 // typedef Supplier<T> = T Function();
