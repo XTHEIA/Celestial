@@ -3,6 +3,7 @@
 import 'dart:math' as math;
 import 'package:calc/calc.dart';
 import 'package:celestial/Cellophane.dart';
+import 'package:celestial/game/game.dart';
 import 'package:celestial/main.dart';
 
 import 'package:flutter/material.dart';

@@ -1,41 +1,46 @@
-import 'dart:io';
-
-import 'package:celestial/game/game.dart';
-import 'package:celestial/game/game_hidden.dart';
-import 'package:celestial/page_games.dart';
 import 'package:flutter/material.dart';
 
-void main() {
-  _routes.clear();
-  _routes.addAll({
-    "/": (ctx) => const HomePage(),
-    "/games": (ctx) => const GamesPage(),
-  });
+import 'package:celestial/game/game.dart';
 
-  for (var game in games) {
-    _routes.addAll({
-      "/game/${game.id}": game.route,
-    });
-  }
-  runApp(const CelestialApp());
+void main() {
+  runApp(CelestialApp());
 }
 
-bool cheat = false;
-
-final Map<String, Widget Function(BuildContext context)> _routes = {};
+bool darkMode = false;
 
 class CelestialApp extends StatelessWidget {
-  const CelestialApp({Key? key}) : super(key: key);
+  CelestialApp({Key? key}) : super(key: key);
+
+  final Map<String, Function(BuildContext)> routes = {};
+
+  void _registerSlideRoute(String name, Widget Function(BuildContext) builder, Offset beginOffset, Curve curve) {
+    routes[name] = (ctx) => createSlideRoute(name, builder, beginOffset, curve);
+  }
 
   @override
   Widget build(BuildContext context) {
+    _registerSlideRoute("/", (p0) => const HomePage(), const Offset(-1.0, 0.0), Curves.ease);
+    _registerSlideRoute("/games", (ctx) => const GamesPage(), const Offset(0.0, 1.0), Curves.ease);
+    for (var game in games) {
+      _registerSlideRoute("/games/${game.id}", game.route, const Offset(1.0, 0.0), Curves.ease);
+    }
+
+    final lightTheme = ThemeData.light();
+    final darkTheme = ThemeData.dark();
+
     return MaterialApp(
       title: "Celestial",
-      themeMode: ThemeMode.light,
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
+      theme: darkMode ? darkTheme : lightTheme,
       initialRoute: "/",
-      routes: _routes,
+      onGenerateRoute: (routeSettings) {
+        final name = routeSettings.name;
+        final args = routeSettings.arguments;
+        final routeFunc = routes[name];
+        if (routeFunc == null) {
+          return MaterialPageRoute(builder: (ctx) => const Text('empty page'), fullscreenDialog: true);
+        }
+        return routeFunc.call(context);
+      },
     );
   }
 }
@@ -48,14 +53,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  Widget _createNavigatorButton(String name, String nav) {
-    return MaterialButton(
-      child: Text(name, style: const TextStyle(fontSize: 30)),
-      height: 55,
-      minWidth: 500,
-      onPressed: () => Navigator.pushNamed(context, nav),
-    );
-  }
+  // Widget _createNavigatorButton(String name, String nav) {
+  //   return MaterialButton(
+  //       child: Text(name, style: const TextStyle(fontSize: 30)),
+  //       height: 40,
+  //       minWidth: double.infinity,
+  //       onPressed: () => Navigator.pushn Navigator.pushNamed(context, nav),);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -68,30 +72,43 @@ class _HomePageState extends State<HomePage> {
             Column(
               children: [
                 const SizedBox(height: 10),
-                Text('top bar'),
+                Row(
+                  children: [
+                    const Text('top bar'),
+                  ],
+                ),
                 const SizedBox(height: 180),
+                /* TITLE */
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const SizedBox(
-                        height: 120,
-                        child: FlutterLogo(
-                          size: double.infinity,
-                          duration: Duration(seconds: 2),
-                          style: FlutterLogoStyle.horizontal,
+                    SizedBox(
+                        height: 100,
+                        child: GestureDetector(
+                          onDoubleTap: () => setState(() => cheat = !cheat),
+                          child: FlutterLogo(
+                            curve: Curves.easeInOutBack,
+                            size: double.infinity,
+                            textColor: cheat ? Colors.red : Colors.grey.shade700,
+                            style: cheat ? FlutterLogoStyle.stacked : FlutterLogoStyle.horizontal,
+                          ),
                         )),
-                    Text('v1.0.0'),
+                    Text('v1.0.0${cheat ? ' (cheat)' : ''}'),
                   ],
                 ),
               ],
             ),
+            /* BUTTONS */
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _createNavigatorButton("게임 목록", "/games"),
-                _createNavigatorButton("버튼 2", "2"),
-                _createNavigatorButton("버튼 2", "2"),
-                _createNavigatorButton("버튼 2", "2"),
+                MaterialButton(
+                    height: 45,
+                    minWidth: double.infinity,
+                    child: const Text('games', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/games");
+                    }),
                 const SizedBox(height: 150),
               ],
             ),
@@ -120,5 +137,21 @@ MaterialButton createCellophane(Color color, void Function() onPressed) {
     minWidth: 100,
     color: color,
     onPressed: onPressed,
+  );
+}
+
+PageRouteBuilder createSlideRoute(String name, Widget Function(BuildContext) builder, Offset beginOffset, Curve curve) {
+  return PageRouteBuilder(
+    settings: RouteSettings(name: name),
+    pageBuilder: (ctx, a1, a2) => builder.call(ctx),
+    transitionsBuilder: (ctx, a1, a2, child) {
+      const end = Offset.zero;
+      final tween = Tween(begin: beginOffset, end: end);
+      final curvedAnimation = CurvedAnimation(parent: a1, curve: curve);
+      return SlideTransition(
+        position: tween.animate(curvedAnimation),
+        child: child,
+      );
+    },
   );
 }

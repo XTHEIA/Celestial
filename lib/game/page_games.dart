@@ -28,8 +28,11 @@ class _GamesPageState extends State<GamesPage> {
       //   ),
       // ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          SizedBox(height: 10),
           Text('$gamesCount개의 게임이 있습니다.'),
+          cheat ? Text('치트가 활성화되었습니다.') : SizedBox(),
           Expanded(
             child: ListView.builder(
               itemCount: gamesCount + 500,
@@ -43,12 +46,12 @@ class _GamesPageState extends State<GamesPage> {
                     onTap: hidden
                         ? () => Navigator.push(ctx, MaterialPageRoute(builder: (ctx) => const GameHidden()))
                         : () => ScaffoldMessenger.of(ctx).showSnackBar(
-                      const SnackBar(
-                        showCloseIcon: true,
-                        content: Text('no game!'),
-                        duration: Duration(milliseconds: 650),
-                      ),
-                    ),
+                              const SnackBar(
+                                showCloseIcon: true,
+                                content: Text('no game!'),
+                                duration: Duration(milliseconds: 650),
+                              ),
+                            ),
                   );
                 }
                 final game = games[idx];
@@ -56,7 +59,7 @@ class _GamesPageState extends State<GamesPage> {
                   leading: const FlutterLogo(),
                   title: Text("$idx : ${game.name}"),
                   subtitle: Text(game.description),
-                  onTap: () => Navigator.pushNamed(ctx, "/game/${game.id}"),
+                  onTap: () => Navigator.pushNamed(ctx, "/games/${game.id}"),
                 );
               },
             ),
