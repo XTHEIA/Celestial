@@ -38,6 +38,7 @@ dependencies:
   numdart: ^1.0.0
   calc: ^0.2.1
   flutter_native_splash: ^2.2.19
+  url_strategy: ^0.2.0
 
 dev_dependencies:
   flutter_test:
