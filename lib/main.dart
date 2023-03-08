@@ -77,7 +77,7 @@ class _HomePageState extends State<HomePage> {
                     const Text('top bar'),
                   ],
                 ),
-                const SizedBox(height: 180),
+                const SizedBox(height: 160),
                 /* TITLE */
                 Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -87,6 +87,7 @@ class _HomePageState extends State<HomePage> {
                         child: GestureDetector(
                           onDoubleTap: () => setState(() => cheat = !cheat),
                           child: FlutterLogo(
+                            duration: Duration(milliseconds: 350),
                             curve: Curves.easeInOutBack,
                             size: double.infinity,
                             textColor: cheat ? Colors.red : Colors.grey.shade700,
@@ -98,6 +99,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ],
             ),
+            Column(
+              children: [
+                Text('Average Score : 55',style: Theme.of(context).textTheme.titleLarge,),
+              ],
+            ),
             /* BUTTONS */
             Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -105,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                 MaterialButton(
                     height: 45,
                     minWidth: double.infinity,
-                    child: const Text('games', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                    child: const Text('GAMES', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
                     onPressed: () {
                       Navigator.pushNamed(context, "/games");
                     }),
