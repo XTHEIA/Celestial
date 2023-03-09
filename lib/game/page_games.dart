@@ -62,7 +62,9 @@ class _GamesPageState extends State<GamesPage> {
       thisGameCardState = pageState;
     }
 
-    bool isSelected = thisGameCardState == _PageState.selected_game;
+    final isSelected = thisGameCardState == _PageState.selected_game;
+    final isPlaying = thisGameCardState == _PageState.play_game;
+    final isExpanded = thisGameCardState == _PageState.expanding_game;
 
     late double height;
     switch (thisGameCardState) {
@@ -112,7 +114,31 @@ class _GamesPageState extends State<GamesPage> {
     onLongPress() => _hoverOrLongPress();
 
     onPlay() {
-      _playGameCard(game);
+      _selectGameCard(game);
+      Navigator.push(
+          context,
+          PageRouteBuilder(
+            fullscreenDialog: false,
+            pageBuilder: (ctx, a1, a2) => Scaffold(
+              appBar: AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                  },
+                ),
+              ),
+              body: game.scene.call(ctx),
+            ),
+            transitionsBuilder: (ctx, a1, a2, child) {
+              final tween = Tween(begin: const Offset(1.0, 0), end: Offset.zero);
+              final curvedAnimation = CurvedAnimation(parent: a1, curve: Curves.easeInOutQuart);
+              return SlideTransition(
+                position: tween.animate(curvedAnimation),
+                child: child,
+              );
+            },
+          ));
     }
 
     return Padding(
@@ -123,9 +149,9 @@ class _GamesPageState extends State<GamesPage> {
           height: height,
           child: Card(
             borderOnForeground: true,
-            elevation: isTarget ? 5 : 1.5,
-            shadowColor: Colors.orange.shade900,
-            color: isTarget ? Colors.orange.shade50 : Colors.white,
+            elevation: isTarget ? 5 : 3,
+            shadowColor: Colors.grey,
+            color: isSelected ? Colors.orange.shade50 : Colors.white,
             child: MouseRegion(
               onEnter: onHoverEnter,
               onExit: (e) {
@@ -137,6 +163,7 @@ class _GamesPageState extends State<GamesPage> {
                 splashColor: Colors.orange.shade200,
                 enableFeedback: true,
                 excludeFromSemantics: true,
+                hoverColor: Colors.transparent,
                 onTap: onTap,
                 onLongPress: onLongPress,
                 child: Padding(
@@ -165,11 +192,11 @@ class _GamesPageState extends State<GamesPage> {
                                   ),
                                   Text(
                                     game.name,
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                                   ),
                                 ],
                               ),
-                              isSelected
+                              (isSelected || isPlaying)
                                   ? IconButton(
                                       color: Colors.orange,
                                       splashRadius: 15,
@@ -228,46 +255,51 @@ class _GamesPageState extends State<GamesPage> {
     if (queries != null) {
       final expand = queries["selected"];
       if (expand != null) {
-        pageState = _PageState.selected_game;
         for (final game in games) {
-          targetGame = game;
+          if (game.id == expand) {
+            targetGame = game;
+            pageState = _PageState.selected_game;
+          }
         }
       } else {
         final play = queries["play"];
         if (play != null) {
-          pageState = _PageState.play_game;
           for (final game in games) {
-            targetGame = game;
+            if (game.id == play) {
+              targetGame = game;
+              pageState = _PageState.play_game;
+            }
           }
         }
       }
+      widget.queries!.clear();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (pageState == _PageState.selected_game) {
+    if (pageState == _PageState.selected_game || pageState == _PageState.play_game) {
       pushURL("?tab=games&selected=${targetGame!.id}");
-    } else if (pageState == _PageState.play_game) {
-      pushURL("?tab=games&play=${targetGame!.id}");
-    } else {
+    }
+    // else if (pageState == _PageState.play_game) {
+    //   pushURL("?tab=games&play=${targetGame!.id}");
+    // }
+    else {
       pushURL("?tab=games");
     }
 
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const SizedBox(height: 10),
-          Text('$gamesCount개의 게임이 있습니다.'),
-          cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
-          ListView.builder(
-            shrinkWrap: true,
-            itemCount: gamesCount,
-            itemBuilder: _gameCardBuilder,
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const SizedBox(height: 10),
+        Text('$gamesCount개의 게임이 있습니다.'),
+        cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: gamesCount,
+          itemBuilder: _gameCardBuilder,
+        ),
+      ],
     );
   }
 }

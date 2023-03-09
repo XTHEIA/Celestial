@@ -29,7 +29,7 @@ class CelestialApp extends StatelessWidget {
     builder(ctx) => CelestialHome(
           query: query,
         );
-    final RouteSettings settings = RouteSettings();
+    final RouteSettings settings = const RouteSettings();
 
     return MaterialPageRoute(builder: builder, settings: settings);
   }
@@ -89,6 +89,13 @@ class _CelestialHomeState extends State<CelestialHome> {
 
     tabs.addAll([
       _Tab(
+          "profile",
+          "프로필",
+          Icons.person,
+          (c, q) => const Center(
+                child: Text('profile'),
+              )),
+      _Tab(
           "games",
           "게임",
           Icons.videogame_asset,
@@ -96,67 +103,77 @@ class _CelestialHomeState extends State<CelestialHome> {
                 queries: q,
               )),
       _Tab("cover", "커버", Icons.book, (context, query) {
-        return Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Column(
-                children: [
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text('top bar'),
-                    ],
-                  ),
-                  const SizedBox(height: 160),
-                  /* TITLE */
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                          height: 100,
-                          child: GestureDetector(
-                            onDoubleTap: () => setState(() => cheat = !cheat),
-                            child: FlutterLogo(
-                              size: 400,
-                              duration: Duration(milliseconds: 350),
-                              curve: Curves.easeInOutBack,
-                              textColor: cheat ? Colors.red : Colors.grey.shade700,
-                              style: cheat ? FlutterLogoStyle.stacked : FlutterLogoStyle.horizontal,
-                            ),
-                          )),
-                      Text('v1.0.0${cheat ? ' (cheat)' : ''}'),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  Text(
-                    'Average Score : 55',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ],
-              ),
-              /* BUTTONS */
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  MaterialButton(
-                      height: 45,
-                      child: const Text('GAMES', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/games");
-                      }),
-                  const SizedBox(height: 150),
-                ],
-              ),
-            ],
-          ),
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Column(
+              children: [
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Text('top bar'),
+                  ],
+                ),
+                const SizedBox(height: 160),
+                /* TITLE */
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                        height: 100,
+                        child: GestureDetector(
+                          onDoubleTap: () => setState(() => cheat = !cheat),
+                          child: FlutterLogo(
+                            size: 400,
+                            duration: const Duration(milliseconds: 350),
+                            curve: Curves.easeInOutBack,
+                            textColor: cheat ? Colors.red : Colors.grey.shade700,
+                            style: cheat ? FlutterLogoStyle.stacked : FlutterLogoStyle.horizontal,
+                          ),
+                        )),
+                    Text('v1.0.0${cheat ? ' (cheat)' : ''}'),
+                  ],
+                ),
+              ],
+            ),
+            Column(
+              children: [
+                Text(
+                  'Average Score : 55',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+            /* BUTTONS */
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MaterialButton(
+                    height: 45,
+                    child: const Text('GAMES', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+                    onPressed: () {
+                      Navigator.pushNamed(context, "/games");
+                    }),
+                const SizedBox(height: 150),
+              ],
+            ),
+          ],
         );
       }),
-      _Tab("info", "정보", Icons.info, (ctx, query) => Text('정보')),
+      _Tab("info", "정보", Icons.info, (ctx, query) => const Center(child: Text('정보'))),
+      _Tab(
+          'source',
+          '소스',
+          Icons.code,
+          (ctx, query) => Center(
+                  child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Text('https://github.com/XTHEIA/celestial'),
+                  Text('https://xtheia.github.io/celestial/'),
+                ],
+              ))),
     ]);
     currentTab = tabs[0];
 
@@ -184,51 +201,77 @@ class _CelestialHomeState extends State<CelestialHome> {
     // }
 
     pushURL("?tab=${currentTab.id}");
-    final Map<String, String> _passQueries = Map.unmodifiable(widget.query);
-    widget.query.clear();
 
     return Scaffold(
       body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
         children: [
           SizedBox(
-            width: 100,
-            child: ListView.builder(
-              itemCount: tabs.length,
-              itemBuilder: (ctx, idx) {
-                final tab = tabs[idx];
-                return InkWell(
-                  onTap: () => setState(() => currentTab = tab),
-                  child: SizedBox(
-                    width: 100,
-                    height: 100,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(tab.iconData),
-                        Text(tab.name),
-                      ],
-                    ),
-                    // title: Text(page.name),
-                  ),
-                );
-              },
+            width: 82,
+            child: Column(
+              children: [
+                Container(
+                  height: 82,
+                  width: 82,
+                  padding: const EdgeInsets.all(17.0),
+                  child: const FlutterLogo(),
+                ),
+                ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: tabs.length,
+                  itemBuilder: (ctx, idx) {
+                    final tab = tabs[idx];
+                    final isSelected = tab == currentTab;
+                    // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
+                    return InkWell(
+                      onTap: () => setState(() => currentTab = tab),
+                      child: SizedBox(
+                        height: 85,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(
+                              tab.iconData,
+                              color: isSelected ? Colors.orange : Colors.black,
+                            ),
+                            Text(
+                              tab.name,
+                              style: TextStyle(
+                                color: isSelected ? Colors.orange : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
+                        // title: Text(page.name),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
-          Container(
-            child: currentTab.builder.call(context, _passQueries),
+          Flexible(
+            flex: 5,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.7),
+                    spreadRadius: 0,
+                    blurRadius: 2.0,
+                    offset: const Offset(-1, 0), // changes position of shadow
+                  ),
+                ],
+              ),
+              child: currentTab.builder(context, queries),
+            ),
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(DiagnosticsProperty<Map<String, String>>('queries', queries));
   }
 }
 
