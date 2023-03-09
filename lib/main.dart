@@ -76,14 +76,18 @@ class _CelestialHomeState extends State<CelestialHome> {
   //       onPressed: () => Navigator.pushn Navigator.pushNamed(context, nav),);
   // }
 
-  final List<_Tab> _tabs = [];
-  String _currentTabID = "";
+  late final Map<String, String> initialQueries, queries;
+  final List<_Tab> tabs = [];
+  late _Tab currentTab;
 
   @override
   void initState() {
     super.initState();
-    // TODO: implement initState
-    _tabs.addAll([
+
+    initialQueries = Map.unmodifiable(widget.query);
+    queries = Map.of(widget.query);
+
+    tabs.addAll([
       _Tab(
           "games",
           "게임",
@@ -154,8 +158,17 @@ class _CelestialHomeState extends State<CelestialHome> {
       }),
       _Tab("info", "정보", Icons.info, (ctx, query) => Text('정보')),
     ]);
+    currentTab = tabs[0];
 
-    _currentTabID = _tabs[0].id;
+    final tabQuery = queries["tab"];
+    if (tabQuery != null) {
+      for (final tab in tabs) {
+        if (tab.id == tabQuery) {
+          currentTab = tab;
+          queries.remove("tab");
+        }
+      }
+    }
   }
 
   @override
@@ -170,14 +183,7 @@ class _CelestialHomeState extends State<CelestialHome> {
     //   }
     // }
 
-    late _Tab currentTab;
-    for (var tab in _tabs) {
-      if (tab.id == _currentTabID) {
-        currentTab = tab;
-      }
-    }
-
-    pushURL(currentTab.id);
+    pushURL("?tab=${currentTab.id}");
     final Map<String, String> _passQueries = Map.unmodifiable(widget.query);
     widget.query.clear();
 
@@ -189,11 +195,11 @@ class _CelestialHomeState extends State<CelestialHome> {
           SizedBox(
             width: 100,
             child: ListView.builder(
-              itemCount: _tabs.length,
+              itemCount: tabs.length,
               itemBuilder: (ctx, idx) {
-                final tab = _tabs[idx];
+                final tab = tabs[idx];
                 return InkWell(
-                  onTap: () => setState(() => _currentTabID = tab.id),
+                  onTap: () => setState(() => currentTab = tab),
                   child: SizedBox(
                     width: 100,
                     height: 100,
@@ -217,6 +223,12 @@ class _CelestialHomeState extends State<CelestialHome> {
         ],
       ),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(DiagnosticsProperty<Map<String, String>>('queries', queries));
   }
 }
 

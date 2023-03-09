@@ -92,7 +92,9 @@ class _GamesPageState extends State<GamesPage> {
     //  플레이 버튼 : 플레이
 
     onTap() {
-      _selectGameCard(game);
+      if (thisGameCardState != _PageState.play_game) {
+        _selectGameCard(game);
+      }
     }
 
     _hoverOrLongPress() {
@@ -194,6 +196,8 @@ class _GamesPageState extends State<GamesPage> {
                                 // ),
                                 Expanded(
                                   child: MaterialButton(
+                                    elevation: 0,
+                                    splashColor: Colors.transparent,
                                     color: Colors.orange,
                                     onPressed: onPlay,
                                     child: Text('play'),
@@ -243,11 +247,11 @@ class _GamesPageState extends State<GamesPage> {
   @override
   Widget build(BuildContext context) {
     if (pageState == _PageState.selected_game) {
-      pushURL("games?selected=${targetGame!.id}");
+      pushURL("?tab=games&selected=${targetGame!.id}");
     } else if (pageState == _PageState.play_game) {
-      pushURL("games?play=${targetGame!.id}");
+      pushURL("?tab=games&play=${targetGame!.id}");
     } else {
-      pushURL("games");
+      pushURL("?tab=games");
     }
 
     return Expanded(
