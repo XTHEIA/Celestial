@@ -22,17 +22,17 @@ class _GameCellophaneState extends State<GameCellophane> {
 
   Widget createChoice(Color color, bool isAnswer, int score) {
     return Cellophane(
-        color: color,
-        child: cheat ? Text(color.computeLuminance().toStringAsFixed(2)) : null,
-    onPressed: () {
-    setState(() {
-    if (isAnswer) {
-    this.score += score;
-    } else {
-    state = _State.END;
-    }
-    });
-    },
+      color: color,
+      child: cheat ? Text(color.computeLuminance().toStringAsFixed(2)) : null,
+      onPressed: () {
+        setState(() {
+          if (isAnswer) {
+            this.score += score;
+          } else {
+            state = _State.END;
+          }
+        });
+      },
     );
   }
 
@@ -62,11 +62,10 @@ class _GameCellophaneState extends State<GameCellophane> {
             MaterialButton(
               minWidth: 200,
               color: Colors.blue,
-              onPressed: () =>
-                  setState(() {
-                    score = 0;
-                    state = _State.READY;
-                  }),
+              onPressed: () => setState(() {
+                score = 0;
+                state = _State.READY;
+              }),
               child: const Text("첫 화면으로"),
             ),
             const SizedBox(height: 40),

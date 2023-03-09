@@ -1,8 +1,10 @@
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:celestial/game/game.dart';
+import 'dart:html';
 import 'package:url_strategy/url_strategy.dart';
 
 void main() {
@@ -10,6 +12,8 @@ void main() {
   runApp(CelestialApp());
 }
 
+bool isMobile =
+    kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
 bool darkMode = false;
 
 class CelestialApp extends StatelessWidget {
@@ -21,23 +25,17 @@ class CelestialApp extends StatelessWidget {
     routes[name] = (ctx) => createSlideRouteName(name, builder, beginOffset, curve);
   }
 
-  static Route router(Map<String, String>? query) {
-    final Widget Function(BuildContext) builder = (ctx) => CelestialHome(query: query);
+  static Route router(Map<String, String> query) {
+    builder(ctx) => CelestialHome(
+          query: query,
+        );
     final RouteSettings settings = RouteSettings();
 
-    return query == null
-        ? MaterialPageRoute(builder: builder, settings: settings)
-        : createSlideRouteSettings(settings, builder, const Offset(0.0, 1.0), Curves.easeInCirc);
+    return MaterialPageRoute(builder: builder, settings: settings);
   }
 
   @override
   Widget build(BuildContext context) {
-    _registerSlideRoute("/", (p0) => const CelestialHome(), const Offset(-1.0, 0.0), Curves.ease);
-    _registerSlideRoute("/games", (ctx) => const GamesPage(), const Offset(0.0, 1.0), Curves.ease);
-    for (var game in games) {
-      _registerSlideRoute("/games/${game.id}", game.route, const Offset(1.0, 0.0), Curves.ease);
-    }
-
     final lightTheme = ThemeData.light().copyWith();
     final darkTheme = ThemeData.dark();
     return MaterialApp(
@@ -55,15 +53,15 @@ class CelestialApp extends StatelessWidget {
         log("args : " + args.toString());
         log("query : " + queryParameters.toString());
 
-        return router(queryParameters);
+        return router(Map.of(queryParameters));
       },
     );
   }
 }
 
 class CelestialHome extends StatefulWidget {
-  const CelestialHome({Key? key, this.query}) : super(key: key);
-  final Map<String, String>? query;
+  const CelestialHome({Key? key, required this.query}) : super(key: key);
+  final Map<String, String> query;
 
   @override
   State<CelestialHome> createState() => _CelestialHomeState();
@@ -80,18 +78,20 @@ class _CelestialHomeState extends State<CelestialHome> {
 
   final List<_Tab> _tabs = [];
   String _currentTabID = "";
-  final Map<String, String> query = {};
 
   @override
   void initState() {
     super.initState();
     // TODO: implement initState
-    if (widget.query != null) {
-      query.addAll(widget.query!);
-    }
     _tabs.addAll([
-      _Tab("games", "게임", Icons.videogame_asset, (ctx) => GamesPage()),
-      _Tab("cover", "커버", Icons.book, (context) {
+      _Tab(
+          "games",
+          "게임",
+          Icons.videogame_asset,
+          (c, q) => GamesPage(
+                queries: q,
+              )),
+      _Tab("cover", "커버", Icons.book, (context, query) {
         return Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -152,7 +152,7 @@ class _CelestialHomeState extends State<CelestialHome> {
           ),
         );
       }),
-      _Tab("info", "정보", Icons.info, (ctx) => Text('정보')),
+      _Tab("info", "정보", Icons.info, (ctx, query) => Text('정보')),
     ]);
 
     _currentTabID = _tabs[0].id;
@@ -160,15 +160,15 @@ class _CelestialHomeState extends State<CelestialHome> {
 
   @override
   Widget build(BuildContext context) {
-    final queryTab = query["tab"];
-    if (queryTab != null) {
-      log("Tab Query : " + queryTab);
-      for (var tab in _tabs) {
-        if (tab.id == queryTab) {
-          _currentTabID = tab.id;
-        }
-      }
-    }
+    // final queryTab = query["tab"];
+    // if (queryTab != null) {
+    //   log("Tab Query : " + queryTab);
+    //   for (var tab in _tabs) {
+    //     if (tab.id == queryTab) {
+    //       _currentTabID = tab.id;
+    //     }
+    //   }
+    // }
 
     late _Tab currentTab;
     for (var tab in _tabs) {
@@ -177,13 +177,17 @@ class _CelestialHomeState extends State<CelestialHome> {
       }
     }
 
+    pushURL(currentTab.id);
+    final Map<String, String> _passQueries = Map.unmodifiable(widget.query);
+    widget.query.clear();
+
     return Scaffold(
       body: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: 200,
+            width: 120,
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: _tabs.length,
@@ -198,7 +202,7 @@ class _CelestialHomeState extends State<CelestialHome> {
             ),
           ),
           Container(
-            child: currentTab.builder.call(context),
+            child: currentTab.builder.call(context, _passQueries),
           ),
         ],
       ),
@@ -250,11 +254,15 @@ PageRouteBuilder createSlideRouteSettings(
   );
 }
 
+void pushURL(String url) {
+  window.history.pushState(null, 'home', url);
+}
+
 class _Tab {
   String id;
   String name;
   IconData iconData;
-  Widget Function(BuildContext) builder;
+  Widget Function(BuildContext, Map<String, String>) builder;
 
   _Tab(this.id, this.name, this.iconData, this.builder);
 }
