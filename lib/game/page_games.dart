@@ -142,7 +142,7 @@ class _GamesPageState extends State<GamesPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
       child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeInOutCirc,
@@ -288,18 +288,24 @@ class _GamesPageState extends State<GamesPage> {
       pushURL("?tab=games");
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        const SizedBox(height: 10),
-        Text('$gamesCount개의 게임이 있습니다.'),
-        cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: gamesCount,
-          itemBuilder: _gameCardBuilder,
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.all(5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 10),
+          Card(
+            elevation: 3,
+            child: Text('$gamesCount개의 게임이 있습니다.'),
+          ),
+          cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: gamesCount,
+            itemBuilder: _gameCardBuilder,
+          ),
+        ],
+      ),
     );
   }
 }
