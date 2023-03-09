@@ -114,7 +114,7 @@ class _GamesPageState extends State<GamesPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
       child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           curve: Curves.easeInOutCirc,
@@ -257,11 +257,10 @@ class _GamesPageState extends State<GamesPage> {
           const SizedBox(height: 10),
           Text('$gamesCount개의 게임이 있습니다.'),
           cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
-          Expanded(
-            child: ListView.builder(
-              itemCount: gamesCount,
-              itemBuilder: _gameCardBuilder,
-            ),
+          ListView.builder(
+            shrinkWrap: true,
+            itemCount: gamesCount,
+            itemBuilder: _gameCardBuilder,
           ),
         ],
       ),

@@ -187,16 +187,26 @@ class _CelestialHomeState extends State<CelestialHome> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           SizedBox(
-            width: 120,
+            width: 100,
             child: ListView.builder(
-              shrinkWrap: true,
               itemCount: _tabs.length,
               itemBuilder: (ctx, idx) {
-                final page = _tabs[idx];
-                return ListTile(
-                  onTap: () => setState(() => _currentTabID = page.id),
-                  leading: Icon(page.iconData),
-                  title: Text(page.name),
+                final tab = _tabs[idx];
+                return InkWell(
+                  onTap: () => setState(() => _currentTabID = tab.id),
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(tab.iconData),
+                        Text(tab.name),
+                      ],
+                    ),
+                    // title: Text(page.name),
+                  ),
                 );
               },
             ),
