@@ -254,19 +254,31 @@ class _CelestialHomeState extends State<CelestialHome> {
           ),
           Flexible(
             flex: 5,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.7),
-                    spreadRadius: 0,
-                    blurRadius: 2.0,
-                    offset: const Offset(-1, 0), // changes position of shadow
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 25,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.7),
+                          spreadRadius: 1,
+                          blurRadius: 2.0,
+                          offset: const Offset(-1, -1), // changes position of shadow
+                        ),
+                      ],
+                    ),
+                    child: currentTab.builder(context, queries),
                   ),
-                ],
-              ),
-              child: currentTab.builder(context, queries),
+                ),
+              ],
             ),
           ),
         ],

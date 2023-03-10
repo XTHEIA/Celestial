@@ -70,7 +70,7 @@ class _GamesPageState extends State<GamesPage> {
     switch (thisGameCardState) {
       case _PageState.listing_games:
       case null:
-        height = 140;
+        height = 100;
         break;
       case _PageState.expanding_game:
         height = 180;
@@ -82,6 +82,8 @@ class _GamesPageState extends State<GamesPage> {
         height = 500;
         break;
     }
+
+    final showCloseButton = (isSelected || isPlaying);
 
     // 마우스 :
     //  호버 : 정보 보기
@@ -149,7 +151,7 @@ class _GamesPageState extends State<GamesPage> {
           height: height,
           child: Card(
             borderOnForeground: true,
-            elevation: isTarget ? 5 : 3,
+            elevation: isTarget ? 6 : 3,
             shadowColor: Colors.grey,
             color: isSelected ? Colors.orange.shade50 : Colors.white,
             child: MouseRegion(
@@ -167,49 +169,67 @@ class _GamesPageState extends State<GamesPage> {
                 onTap: onTap,
                 onLongPress: onLongPress,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
+                  padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Column(
                         mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  const Icon(
-                                    Icons.add_card_sharp,
+                                  Icon(
+                                    game.iconData,
                                     color: Colors.orangeAccent,
                                     size: 30,
                                   ),
                                   const SizedBox(
                                     width: 10,
                                   ),
-                                  Text(
-                                    game.name,
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(0, 0, 0, 3),
+                                    child: Text.rich(
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text: game.name + '  ',
+                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                                          ),
+                                          TextSpan(
+                                            text: game.difficulty,
+                                          )
+                                        ],
+                                      ),
+
+                                    ),
                                   ),
                                 ],
                               ),
-                              (isSelected || isPlaying)
-                                  ? IconButton(
-                                      color: Colors.orange,
-                                      splashRadius: 15,
-                                      splashColor: Colors.orange,
-                                      onPressed: () {
+                              IconButton(
+                                color: Colors.orange,
+                                padding: EdgeInsets.zero,
+                                splashRadius: 15,
+                                splashColor: Colors.orange,
+                                mouseCursor: MouseCursor.defer,
+                                disabledColor: Colors.transparent,
+                                onPressed: showCloseButton
+                                    ? () {
                                         _unsetGameCard();
                                         _expandGameCard(game);
-                                      },
-                                      icon: Icon(Icons.close),
-                                    )
-                                  : const Padding(padding: EdgeInsets.zero),
+                                      }
+                                    : null,
+                                icon: Icon(Icons.close),
+                              ),
                             ],
                           ),
+                          SizedBox(height: 2),
                           Text(game.description),
                         ],
                       ),
@@ -296,7 +316,10 @@ class _GamesPageState extends State<GamesPage> {
           const SizedBox(height: 10),
           Card(
             elevation: 3,
-            child: Text('$gamesCount개의 게임이 있습니다.'),
+            child: Padding(
+              padding: EdgeInsets.all(14),
+              child: Text('$gamesCount개의 게임이 있습니다.'),
+            ),
           ),
           cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
           ListView.builder(
