@@ -65,7 +65,8 @@ class _CelestialHomeState extends State<CelestialHome> {
   late final Map<String, String> initialQueries, queries;
   final List<_Tab> tabs = [];
   late _Tab currentTab;
-  late ThemeData themeData = ThemeData.light().copyWith(
+  bool isDarkMode = false;
+  late ThemeData themeData = (isDarkMode ? ThemeData.dark() : ThemeData.light()).copyWith(
     primaryColor: Color.fromARGB(255, 0, 93, 33),
   );
 
@@ -192,7 +193,6 @@ class _CelestialHomeState extends State<CelestialHome> {
     return MaterialApp(
       theme: themeData,
       home: Scaffold(
-        backgroundColor: Colors.grey.withOpacity(0.10),
         body: Row(
           mainAxisSize: MainAxisSize.max,
           children: [
@@ -223,7 +223,7 @@ class _CelestialHomeState extends State<CelestialHome> {
                                   onTap: () => setState(() => currentTab = tab),
                                   child: Container(
                                     color: isSelected
-                                        ? Color.lerp(Colors.white, themeData.primaryColor, 0.3)
+                                        ? Color.lerp(themeData.scaffoldBackgroundColor, themeData.primaryColor, 0.3)
                                         : Colors.transparent,
                                     height: 85,
                                     child: Column(
@@ -249,12 +249,22 @@ class _CelestialHomeState extends State<CelestialHome> {
                       ],
                     ),
                   ),
-                  MaterialButton(
-                    color: themeData.primaryColor,
-                    onPressed: () => setState(() => themeData = themeData.copyWith(
-                          primaryColor:
-                              Color.fromRGBO(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255), 1),
-                        )),
+                  Column(
+                    children: [
+                      MaterialButton(
+                        color: themeData.colorScheme.background,
+                        onPressed: () => setState(() {
+                          themeData = !(isDarkMode = !isDarkMode) ? ThemeData.light() : ThemeData.dark();
+                        }),
+                      ),
+                      MaterialButton(
+                        color: themeData.primaryColor,
+                        onPressed: () => setState(() => themeData = themeData.copyWith(
+                              primaryColor: Color.fromRGBO(
+                                  Random().nextInt(255), Random().nextInt(255), Random().nextInt(255), 1),
+                            )),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -265,7 +275,7 @@ class _CelestialHomeState extends State<CelestialHome> {
                 padding: EdgeInsets.symmetric(vertical: 0),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: themeData.scaffoldBackgroundColor,
                     // borderRadius: BorderRadius.circular(5),
                     boxShadow: [
                       BoxShadow(

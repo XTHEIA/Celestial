@@ -87,7 +87,8 @@ class _GamesPageState extends State<GamesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
+    final themeData= Theme.of(context);
+    final primaryColor = themeData.primaryColor;
     if (pageState == _PageState.selected_game || pageState == _PageState.play_game) {
       pushURL("?tab=games&selected=${targetGame!.id}");
     }
@@ -214,8 +215,7 @@ class _GamesPageState extends State<GamesPage> {
                         child: Card(
                           borderOnForeground: true,
                           elevation: isTarget ? 6 : 3,
-                          shadowColor: Colors.grey,
-                          color: isSelected ? Color.lerp(Colors.white, primaryColor, 0.08) : Colors.white,
+                          color: isSelected ? Color.lerp(themeData.scaffoldBackgroundColor, primaryColor, 0.08) : themeData.scaffoldBackgroundColor,
                           child: MouseRegion(
                             onEnter: onHoverEnter,
                             onExit: (e) {
