@@ -1,9 +1,10 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:celestial/game/game.dart';
+import 'dart:math';
 import 'dart:html';
 import 'package:url_strategy/url_strategy.dart';
 
@@ -14,7 +15,6 @@ void main() {
 
 bool isMobile =
     kIsWeb && (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.android);
-bool darkMode = false;
 
 class CelestialApp extends StatelessWidget {
   CelestialApp({Key? key}) : super(key: key);
@@ -25,37 +25,23 @@ class CelestialApp extends StatelessWidget {
     routes[name] = (ctx) => createSlideRouteName(name, builder, beginOffset, curve);
   }
 
-  static Route router(Map<String, String> query) {
+  static Widget router(Map<String, String> query) {
     builder(ctx) => CelestialHome(
           query: query,
         );
     final RouteSettings settings = const RouteSettings();
 
-    return MaterialPageRoute(builder: builder, settings: settings);
+    // return MaterialPageRoute(builder: builder, settings: settings);
+    return CelestialHome(
+      query: query,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final lightTheme = ThemeData.light().copyWith();
-    final darkTheme = ThemeData.dark();
-    return MaterialApp(
-      title: "Celestial",
-      initialRoute: "/",
-      theme: darkMode ? darkTheme : lightTheme,
-      // initialRoute: "/",
-      onGenerateRoute: (routeSettings) {
-        final name = routeSettings.name;
-        final args = routeSettings.arguments;
-
-        final queryParameters = Uri.base.queryParameters;
-
-        log("name : " + name.toString());
-        log("args : " + args.toString());
-        log("query : " + queryParameters.toString());
-
-        return router(Map.of(queryParameters));
-      },
-    );
+    final queryParameters = Uri.base.queryParameters;
+    dev.log("query : " + queryParameters.toString());
+    return router(Map.of(queryParameters));
   }
 }
 
@@ -79,6 +65,9 @@ class _CelestialHomeState extends State<CelestialHome> {
   late final Map<String, String> initialQueries, queries;
   final List<_Tab> tabs = [];
   late _Tab currentTab;
+  late ThemeData themeData = ThemeData.light().copyWith(
+    primaryColor: Color.fromARGB(255, 0, 93, 33),
+  );
 
   @override
   void initState() {
@@ -109,7 +98,6 @@ class _CelestialHomeState extends State<CelestialHome> {
           children: [
             Column(
               children: [
-                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Text('top bar'),
@@ -201,87 +189,102 @@ class _CelestialHomeState extends State<CelestialHome> {
     // }
 
     pushURL("?tab=${currentTab.id}");
-
-    return Scaffold(
-      body: Row(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          SizedBox(
-            width: 82,
-            child: Column(
-              children: [
-                Container(
-                  height: 82,
-                  width: 82,
-                  padding: const EdgeInsets.all(17.0),
-                  child: const FlutterLogo(),
-                ),
-                ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: tabs.length,
-                  itemBuilder: (ctx, idx) {
-                    final tab = tabs[idx];
-                    final isSelected = tab == currentTab;
-                    // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
-                    return InkWell(
-                      onTap: () => setState(() => currentTab = tab),
-                      child: SizedBox(
-                        height: 85,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(
-                              tab.iconData,
-                              color: isSelected ? Colors.orange : Colors.black,
-                            ),
-                            Text(
-                              tab.name,
-                              style: TextStyle(
-                                color: isSelected ? Colors.orange : Colors.black,
-                              ),
-                            ),
-                          ],
+    return MaterialApp(
+      theme: themeData,
+      home: Scaffold(
+        backgroundColor: Colors.grey.withOpacity(0.10),
+        body: Row(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            SizedBox(
+              width: 82,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 82,
+                          width: 82,
+                          padding: const EdgeInsets.all(17.0),
+                          child: const FlutterLogo(),
                         ),
-                        // title: Text(page.name),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          Flexible(
-            flex: 5,
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 25,
-                ),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.7),
-                          spreadRadius: 1,
-                          blurRadius: 2.0,
-                          offset: const Offset(-1, -1), // changes position of shadow
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: tabs.length,
+                            itemBuilder: (ctx, idx) {
+                              final tab = tabs[idx];
+                              final isSelected = tab == currentTab;
+                              // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
+                              return AnimatedContainer(
+                                duration: Duration(milliseconds: 200),
+                                child: InkWell(
+                                  onTap: () => setState(() => currentTab = tab),
+                                  child: Container(
+                                    color: isSelected
+                                        ? Color.lerp(Colors.white, themeData.primaryColor, 0.3)
+                                        : Colors.transparent,
+                                    height: 85,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          tab.iconData,
+                                        ),
+                                        Text(
+                                          tab.name,
+                                        ),
+                                      ],
+                                    ),
+                                    // title: Text(page.name),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                  MaterialButton(
+                    color: themeData.primaryColor,
+                    onPressed: () => setState(() => themeData = themeData.copyWith(
+                          primaryColor:
+                              Color.fromRGBO(Random().nextInt(255), Random().nextInt(255), Random().nextInt(255), 1),
+                        )),
+                  ),
+                ],
+              ),
+            ),
+            Flexible(
+              flex: 5,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    // borderRadius: BorderRadius.circular(5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: themeData.primaryColor.withOpacity(0.7),
+                        spreadRadius: 1,
+                        blurRadius: 2.0,
+                        offset: const Offset(-1, -1), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(12),
                     child: currentTab.builder(context, queries),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
