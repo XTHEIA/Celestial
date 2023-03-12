@@ -70,6 +70,13 @@ class _CelestialHomeState extends State<CelestialHome> {
     primaryColor: Color.fromARGB(255, 0, 93, 33),
   );
 
+  void setTheme(bool isDarkMode, ThemeData data) {
+    setState(() {
+      this.isDarkMode = isDarkMode;
+      this.themeData = data;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -254,7 +261,9 @@ class _CelestialHomeState extends State<CelestialHome> {
                       MaterialButton(
                         color: themeData.colorScheme.background,
                         onPressed: () => setState(() {
-                          themeData = !(isDarkMode = !isDarkMode) ? ThemeData.light() : ThemeData.dark();
+                          themeData = !(isDarkMode = !isDarkMode)
+                              ? ThemeData.light().copyWith(primaryColor: themeData.primaryColor)
+                              : ThemeData.dark().copyWith(primaryColor: themeData.primaryColor);
                         }),
                       ),
                       MaterialButton(

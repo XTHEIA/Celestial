@@ -87,7 +87,7 @@ class _GamesPageState extends State<GamesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeData= Theme.of(context);
+    final themeData = Theme.of(context);
     final primaryColor = themeData.primaryColor;
     if (pageState == _PageState.selected_game || pageState == _PageState.play_game) {
       pushURL("?tab=games&selected=${targetGame!.id}");
@@ -120,33 +120,29 @@ class _GamesPageState extends State<GamesPage> {
                   final game = games[idx];
 
                   final isTarget = game == targetGame;
-                  _PageState? thisGameCardState;
+
+                  bool isThis(_PageState state) {
+                    assert(state != _PageState.listing_games);
+                    return isTarget && pageState == state;
+                  }
+
+                  late final double height;
                   if (isTarget) {
-                    thisGameCardState = pageState;
+                    assert(pageState != _PageState.listing_games);
+                    switch (pageState) {
+                      case _PageState.expanding_game:
+                        height = 180;
+                        break;
+                      case _PageState.selected_game:
+                        height = 220;
+                        break;
+                      case _PageState.play_game:
+                        height = 500;
+                        break;
+                    }
+                  } else {
+                    height = 100;
                   }
-
-                  final isSelected = thisGameCardState == _PageState.selected_game;
-                  final isPlaying = thisGameCardState == _PageState.play_game;
-                  final isExpanded = thisGameCardState == _PageState.expanding_game;
-
-                  late double height;
-                  switch (thisGameCardState) {
-                    case _PageState.listing_games:
-                    case null:
-                      height = 100;
-                      break;
-                    case _PageState.expanding_game:
-                      height = 180;
-                      break;
-                    case _PageState.selected_game:
-                      height = 220;
-                      break;
-                    case _PageState.play_game:
-                      height = 500;
-                      break;
-                  }
-
-                  final showCloseButton = (isSelected || isPlaying);
 
                   // 마우스 :
                   //  호버 : 정보 보기
@@ -158,13 +154,7 @@ class _GamesPageState extends State<GamesPage> {
                   //  꾹 : 정보 보기
                   //  플레이 버튼 : 플레이
 
-                  onTap() {
-                    if (thisGameCardState != _PageState.play_game) {
-                      _selectGameCard(game);
-                    }
-                  }
-
-                  _hoverOrLongPress() {
+                  peekCard() {
                     bool otherCardActive = false;
                     if (targetGame != null && game != targetGame) {
                       otherCardActive = true;
@@ -175,70 +165,49 @@ class _GamesPageState extends State<GamesPage> {
                     }
                   }
 
-                  onHoverEnter(e) => _hoverOrLongPress();
-                  onLongPress() => _hoverOrLongPress();
-
-                  onPlay() {
-                    _selectGameCard(game);
-                    Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          fullscreenDialog: false,
-                          pageBuilder: (ctx, a1, a2) => Scaffold(
-                            appBar: AppBar(
-                              leading: IconButton(
-                                icon: Icon(Icons.close),
-                                onPressed: () {
-                                  Navigator.pop(ctx);
-                                },
-                              ),
-                            ),
-                            body: game.scene.call(ctx),
-                          ),
-                          transitionsBuilder: (ctx, a1, a2, child) {
-                            final tween = Tween(begin: const Offset(1.0, 0), end: Offset.zero);
-                            final curvedAnimation = CurvedAnimation(parent: a1, curve: Curves.easeInOutQuart);
-                            return SlideTransition(
-                              position: tween.animate(curvedAnimation),
-                              child: child,
-                            );
-                          },
-                        ));
-                  }
-
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
                     child: AnimatedContainer(
+                        height: height,
                         duration: const Duration(milliseconds: 150),
                         curve: Curves.easeInOutCirc,
-                        height: height,
                         child: Card(
                           borderOnForeground: true,
                           elevation: isTarget ? 6 : 3,
-                          color: isSelected ? Color.lerp(themeData.scaffoldBackgroundColor, primaryColor, 0.08) : themeData.scaffoldBackgroundColor,
+                          shadowColor: Color.lerp(themeData.shadowColor, themeData.primaryColor, 0.5),
+                          color: isThis(_PageState.selected_game)
+                              ? Color.lerp(themeData.scaffoldBackgroundColor, primaryColor, 0.08)
+                              : null,
                           child: MouseRegion(
-                            onEnter: onHoverEnter,
+                            onEnter: (e) => peekCard(),
                             onExit: (e) {
-                              if (thisGameCardState == _PageState.expanding_game) {
+                              if (isThis(_PageState.expanding_game)) {
                                 _unsetGameCard();
                               }
                             },
                             child: InkWell(
-                              splashColor: Colors.orange.shade200,
                               enableFeedback: true,
                               excludeFromSemantics: true,
                               hoverColor: Colors.transparent,
-                              onTap: onTap,
-                              onLongPress: onLongPress,
+                              onTap: () {
+                                if (!isThis(_PageState.play_game)) {
+                                  _selectGameCard(game);
+                                }
+                              },
+                              onLongPress: () => peekCard(),
                               child: Padding(
                                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                                // 메인
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
                                   children: [
+                                    // 아이콘 - 이름 - 난이도 - 닫기 버튼
+                                    // 설명
                                     Column(
                                       mainAxisAlignment: MainAxisAlignment.start,
                                       crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.max,
                                       children: [
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -275,24 +244,27 @@ class _GamesPageState extends State<GamesPage> {
                                             ),
                                             IconButton(
                                               padding: EdgeInsets.zero,
+                                              color: themeData.primaryColor,
                                               splashRadius: 15,
                                               mouseCursor: MouseCursor.defer,
                                               disabledColor: Colors.transparent,
-                                              onPressed: showCloseButton
-                                                  ? () {
-                                                      _unsetGameCard();
-                                                      _expandGameCard(game);
-                                                    }
-                                                  : null,
+                                              onPressed:
+                                                  isThis(_PageState.play_game) || isThis(_PageState.selected_game)
+                                                      ? () {
+                                                          _unsetGameCard();
+                                                          _expandGameCard(game);
+                                                        }
+                                                      : null,
                                               icon: Icon(Icons.close),
                                             ),
                                           ],
                                         ),
-                                        SizedBox(height: 2),
+                                        const SizedBox(height: 2),
                                         Text(game.description),
                                       ],
                                     ),
-                                    isSelected
+                                    // Play 버튼
+                                    isThis(_PageState.selected_game)
                                         ? Row(
                                             children: [
                                               // IconButton(
@@ -305,7 +277,36 @@ class _GamesPageState extends State<GamesPage> {
                                                   elevation: 0,
                                                   splashColor: Colors.transparent,
                                                   color: primaryColor,
-                                                  onPressed: onPlay,
+                                                  onPressed: () {
+                                                    _selectGameCard(game);
+                                                    Navigator.push(
+                                                        context,
+                                                        PageRouteBuilder(
+                                                          fullscreenDialog: false,
+                                                          pageBuilder: (ctx, a1, a2) => Scaffold(
+                                                            appBar: AppBar(
+                                                              leading: IconButton(
+                                                                color: themeData.primaryColor,
+                                                                icon: Icon(Icons.close),
+                                                                onPressed: () {
+                                                                  Navigator.pop(ctx);
+                                                                },
+                                                              ),
+                                                            ),
+                                                            body: game.scene(ctx),
+                                                          ),
+                                                          transitionsBuilder: (ctx, a1, a2, child) {
+                                                            final tween =
+                                                                Tween(begin: const Offset(1.0, 0), end: Offset.zero);
+                                                            final curvedAnimation = CurvedAnimation(
+                                                                parent: a1, curve: Curves.easeInOutQuart);
+                                                            return SlideTransition(
+                                                              position: tween.animate(curvedAnimation),
+                                                              child: child,
+                                                            );
+                                                          },
+                                                        ));
+                                                  },
                                                   child: Text('play'),
                                                 ),
                                               )
