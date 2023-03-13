@@ -12,6 +12,8 @@ class GameColorLerp extends StatefulWidget {
 }
 
 class _GameColorLerpState extends State<GameColorLerp> {
+  bool isFinished = false;
+
   _Question? currentQuestion = _Question.random(Random().nextInt(2) + 1);
   Color currentColor = Colors.transparent;
   final List<int> selectedAnswers = [];
@@ -36,81 +38,102 @@ class _GameColorLerpState extends State<GameColorLerp> {
     var similarity = 1.0 - (dif as double) / (Color(0XFFFFFFFF).value as double);
 
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text('현재 점수 : $score'),
-          const SizedBox(height: 10),
-          Text('재료 ${q.answersCount}개를 사용해 목표를 합성하세요.'),
-          Text(cheat ? '정답 : ${answers.toString()}' : ''),
-          const SizedBox(height: 30),
-          Cellophane(
-            color: targetColor,
-            onPressed: () {},
-          ),
-          const SizedBox(height: 5),
-          const Text('이 색은 "목표" 입니다.'),
-          const SizedBox(height: 30),
-          Cellophane(
-            color: currentColor,
-            onPressed: () {},
-          ),
-          const SizedBox(height: 5),
-          const Text('이 색은 "현재" 입니다.'),
-          const SizedBox(height: 35),
-          Builder(
-            builder: (ctx) {
-              final options = q.options;
-              final optionsCount = options.length;
-              final List<Widget> tiles = List.empty(growable: true);
-              for (int i = 0; i < optionsCount; i++) {
-                final color = options[i];
-                final alreadySelected = selectedAnswers.contains(i);
-                tiles.add(MaterialButton(
-                  height: 50,
-                  color: color,
-                  onPressed: alreadySelected
-                      ? null
-                      : () {
-                          setState(() {
-                            final isAnswer = answers.contains(i);
-                            if (!isAnswer) {
-                              isCorrect = false;
-                            }
-                            final curAnswersSize = selectedAnswers.length;
-                            selectedAnswers.add(i);
-                            currentColor = curAnswersSize == 0 ? color : Color.lerp(currentColor, color, 0.5)!;
-                            if (curAnswersSize + 1 == answersCount) {
-                              if (isCorrect) {
-                                score += q.difficulty * 15;
-                                isCorrect = true;
-                                currentQuestion = _Question.random(Random().nextInt(4) + 1);
-                                currentColor = Colors.transparent;
-                                selectedAnswers.clear();
-                              } else {
-                                Navigator.pop(ctx);
-                              }
-                            }
-                          });
-                        },
-                ));
-                // if (i != optionsCount - 1) {
-                //   tiles.add(const SizedBox(width: 10));
-                // }
-              }
-              return Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: tiles,
-              );
-            },
-          ),
-          const SizedBox(height: 5),
-          Text('이 색들은 "재료" 입니다.'),
-        ],
-      ),
+      child: isFinished
+          ? Text('점수 : $score')
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('현재 점수 : $score'),
+                const SizedBox(height: 15),
+                Text('재료 ${q.answersCount}개를 사용해 목표를 합성하세요.'),
+                const SizedBox(height: 5),
+                Text('남은 선택 수 : ${q.answersCount - selectedAnswers.length}회'),
+                Text(cheat ? '정답 : ${answers.toString()}' : ''),
+                const SizedBox(height: 15),
+                Cellophane(
+                  color: targetColor,
+                  onPressed: () {},
+                ),
+                const SizedBox(height: 5),
+                const Text('이 색은 "목표" 입니다.'),
+                const SizedBox(height: 30),
+                Cellophane(
+                  color: currentColor,
+                  onPressed: () {},
+                ),
+                const SizedBox(height: 5),
+                Builder(
+                  builder: (ctx) {
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: selectedColors.map((c) {
+                        return Container(
+                          width: 10,
+                          height: 10,
+                          color: c,
+                        );
+                      }).toList(growable: false),
+                    );
+                  },
+                ),
+                const Text('이 색은 "현재" 입니다.'),
+                const SizedBox(height: 35),
+                Builder(
+                  builder: (ctx) {
+                    final options = q.options;
+                    final optionsCount = options.length;
+                    final List<Widget> tiles = List.empty(growable: true);
+                    for (int i = 0; i < optionsCount; i++) {
+                      final color = options[i];
+                      final alreadySelected = selectedAnswers.contains(i);
+                      if (alreadySelected) continue;
+                      tiles.add(MaterialButton(
+                        height: 50,
+                        color: color,
+                        onPressed: alreadySelected
+                            ? null
+                            : () {
+                                setState(() {
+                                  final isAnswer = answers.contains(i);
+                                  if (!isAnswer) {
+                                    isCorrect = false;
+                                  }
+                                  final curAnswersSize = selectedAnswers.length;
+                                  selectedAnswers.add(i);
+                                  selectedColors.add(color);
+                                  currentColor = curAnswersSize == 0 ? color : Color.lerp(currentColor, color, 0.5)!;
+                                  if (curAnswersSize + 1 == answersCount) {
+                                    if (isCorrect) {
+                                      score += q.difficulty * 15;
+                                      isCorrect = true;
+                                      currentQuestion = _Question.random(Random().nextInt(3) + 1);
+                                      currentColor = Colors.transparent;
+                                      selectedAnswers.clear();
+                                      selectedColors.clear();
+                                    } else {
+                                      isFinished = true;
+                                    }
+                                  }
+                                });
+                              },
+                      ));
+                      if (i != optionsCount - 1) {
+                        tiles.add(const SizedBox(width: 10));
+                      }
+                    }
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: tiles,
+                    );
+                  },
+                ),
+                const SizedBox(height: 5),
+                Text('이 색들은 "재료" 입니다.'),
+              ],
+            ),
     );
   }
 }
