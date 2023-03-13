@@ -228,33 +228,30 @@ class _CelestialHomeState extends State<CelestialHome> {
                               final color = themeData.primaryColor;
                               //(isDarkMode ? themeData.primaryColorLight : themeData.primaryColorDark);
                               // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 100),
-                                height: (isHovering || isSelected) ? 100 : 85,
-                                child: InkWell(
-                                  onHover: (b) => setState(() => hoveringTab = tab),
-                                  onTap: () => setState(() => currentTab = tab),
-                                  child: Container(
-                                    color: isSelected
-                                        ? Color.lerp(themeData.scaffoldBackgroundColor, color, 0.25)
-                                        : Colors.transparent,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      crossAxisAlignment: CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(
-                                          tab.iconData,
-                                          color: color,
-                                        ),
-                                        Text(
-                                          tab.name,
-                                          style: TextStyle(color: color),
-                                        ),
-                                      ],
-                                    ),
-                                    // title: Text(page.name),
+                              return InkWell(
+                                onHover: (b) => setState(() => hoveringTab = tab),
+                                onTap: () => setState(() => currentTab = tab),
+                                child: Container(
+                                  height: 85,
+                                  color: isSelected
+                                      ? Color.lerp(themeData.scaffoldBackgroundColor, color, 0.25)
+                                      : Colors.transparent,
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        tab.iconData,
+                                        color: color,
+                                      ),
+                                      Text(
+                                        tab.name,
+                                        style: TextStyle(color: color),
+                                      ),
+                                    ],
                                   ),
+                                  // title: Text(page.name),
                                 ),
                               );
                             },

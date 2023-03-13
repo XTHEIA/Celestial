@@ -87,6 +87,7 @@ class _GameColorLerpState extends State<GameColorLerp> {
                     final List<Widget> tiles = List.empty(growable: true);
                     for (int i = 0; i < optionsCount; i++) {
                       final color = options[i];
+                      final isAnswer = answers.contains(i);
                       final alreadySelected = selectedAnswers.contains(i);
                       if (alreadySelected) continue;
                       tiles.add(MaterialButton(
@@ -97,7 +98,6 @@ class _GameColorLerpState extends State<GameColorLerp> {
                             ? null
                             : () {
                                 setState(() {
-                                  final isAnswer = answers.contains(i);
                                   if (!isAnswer) {
                                     isCorrect = false;
                                   }
@@ -119,6 +119,7 @@ class _GameColorLerpState extends State<GameColorLerp> {
                                   }
                                 });
                               },
+                        child: cheat && isAnswer ? Text('ANSWER') : null,
                       ));
                       // if (i != optionsCount - 1) {
                       //   tiles.add(const SizedBox(width: 10));

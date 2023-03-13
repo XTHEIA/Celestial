@@ -211,7 +211,7 @@ class _GamesPageState extends State<GamesPage> {
                           borderOnForeground: true,
                           elevation: isTarget ? 6 : 3,
                           shadowColor: Color.lerp(themeData.shadowColor, themeData.primaryColor, 0.5),
-                          color: isThis(_PageState.selected_game)
+                          color: isThis(_PageState.selected_game) || isThis(_PageState.play_game)
                               ? Color.lerp(themeData.scaffoldBackgroundColor, primaryColor, 0.08)
                               : null,
                           child: MouseRegion(
