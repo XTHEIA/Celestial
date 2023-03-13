@@ -325,7 +325,6 @@ MaterialButton createGameStartButton({void Function()? onPressed}) {
   return MaterialButton(
     onPressed: onPressed,
     minWidth: 200,
-    color: Colors.blue,
     child: const Text("START"),
   );
 }

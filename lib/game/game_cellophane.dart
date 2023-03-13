@@ -47,8 +47,10 @@ class _GameCellophaneState extends State<GameCellophane> {
           children: [
             const Text("더 밝은 색을 찾으세요."),
             const SizedBox(height: 20),
-            createGameStartButton(
+            MaterialButton(
               onPressed: () => setState(() => state = _State.GAMING),
+              minWidth: 200,
+              child: const Text("START"),
             ),
           ],
         );
@@ -61,7 +63,6 @@ class _GameCellophaneState extends State<GameCellophane> {
             const SizedBox(height: 50),
             MaterialButton(
               minWidth: 200,
-              color: Colors.blue,
               onPressed: () => setState(() {
                 score = 0;
                 state = _State.READY;

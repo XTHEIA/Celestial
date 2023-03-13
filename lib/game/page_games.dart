@@ -27,6 +27,35 @@ class _GamesPageState extends State<GamesPage> {
   _PageState pageState = _PageState.listing_games;
   Game? targetGame = null;
 
+  void _openGame(BuildContext context, Game game) {
+    Navigator.push(
+        context,
+        PageRouteBuilder(
+          fullscreenDialog: false,
+          pageBuilder: (ctx, a1, a2) => Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                color: Theme.of(context).primaryColor,
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.pop(ctx);
+                },
+              ),
+              title: Text(game.name),
+            ),
+            body: game.scene(ctx),
+          ),
+          transitionsBuilder: (ctx, a1, a2, child) {
+            final tween = Tween(begin: const Offset(1.0, 0), end: Offset.zero);
+            final curvedAnimation = CurvedAnimation(parent: a1, curve: Curves.easeInOutQuart);
+            return SlideTransition(
+              position: tween.animate(curvedAnimation),
+              child: child,
+            );
+          },
+        ));
+  }
+
   void _expandGameCard(Game game) {
     setState(() {
       pageState = _PageState.expanding_game;
@@ -281,33 +310,7 @@ class _GamesPageState extends State<GamesPage> {
                                                   color: primaryColor,
                                                   onPressed: () {
                                                     _playGameCard(game);
-                                                    Navigator.push(
-                                                        context,
-                                                        PageRouteBuilder(
-                                                          fullscreenDialog: false,
-                                                          pageBuilder: (ctx, a1, a2) => Scaffold(
-                                                            appBar: AppBar(
-                                                              leading: IconButton(
-                                                                color: themeData.primaryColor,
-                                                                icon: Icon(Icons.close),
-                                                                onPressed: () {
-                                                                  Navigator.pop(ctx);
-                                                                },
-                                                              ),
-                                                            ),
-                                                            body: game.scene(ctx),
-                                                          ),
-                                                          transitionsBuilder: (ctx, a1, a2, child) {
-                                                            final tween =
-                                                                Tween(begin: const Offset(1.0, 0), end: Offset.zero);
-                                                            final curvedAnimation = CurvedAnimation(
-                                                                parent: a1, curve: Curves.easeInOutQuart);
-                                                            return SlideTransition(
-                                                              position: tween.animate(curvedAnimation),
-                                                              child: child,
-                                                            );
-                                                          },
-                                                        ));
+                                                    _openGame(ctx, game);
                                                   },
                                                   child: Text('play'),
                                                 ),
