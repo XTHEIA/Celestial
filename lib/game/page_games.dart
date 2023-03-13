@@ -140,10 +140,15 @@ class _GamesPageState extends State<GamesPage> {
               elevation: 3,
               child: Padding(
                 padding: EdgeInsets.fromLTRB(14, 14, 14, 14),
-                child: Text('$gamesCount개의 게임이 있습니다.'),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text('$gamesCount개의 게임이 있습니다.'),
+                    cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
+                  ],
+                ),
               ),
             ),
-            cheat ? const Text('치트가 활성화되었습니다.') : const SizedBox(),
             Expanded(
               child: ListView.builder(
                 itemCount: gamesCount,

@@ -229,7 +229,7 @@ class _CelestialHomeState extends State<CelestialHome> {
                               //(isDarkMode ? themeData.primaryColorLight : themeData.primaryColorDark);
                               // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
                               return AnimatedContainer(
-                                duration: Duration(milliseconds: 100),
+                                duration: const Duration(milliseconds: 100),
                                 height: (isHovering || isSelected) ? 100 : 85,
                                 child: InkWell(
                                   onHover: (b) => setState(() => hoveringTab = tab),
@@ -290,7 +290,7 @@ class _CelestialHomeState extends State<CelestialHome> {
             Flexible(
               flex: 5,
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 0),
+                padding: const EdgeInsets.symmetric(vertical: 0),
                 child: Container(
                   decoration: BoxDecoration(
                     color: themeData.scaffoldBackgroundColor,

@@ -91,6 +91,7 @@ class _GameColorLerpState extends State<GameColorLerp> {
                       if (alreadySelected) continue;
                       tiles.add(MaterialButton(
                         height: 50,
+                        minWidth: 50,
                         color: color,
                         onPressed: alreadySelected
                             ? null
@@ -108,7 +109,7 @@ class _GameColorLerpState extends State<GameColorLerp> {
                                     if (isCorrect) {
                                       score += q.difficulty * 15;
                                       isCorrect = true;
-                                      currentQuestion = _Question.random(Random().nextInt(3) + 1);
+                                      currentQuestion = _Question.random(Random().nextInt(6) + 1);
                                       currentColor = Colors.transparent;
                                       selectedAnswers.clear();
                                       selectedColors.clear();
@@ -119,14 +120,25 @@ class _GameColorLerpState extends State<GameColorLerp> {
                                 });
                               },
                       ));
-                      if (i != optionsCount - 1) {
-                        tiles.add(const SizedBox(width: 10));
-                      }
+                      // if (i != optionsCount - 1) {
+                      //   tiles.add(const SizedBox(width: 10));
+                      // }
                     }
                     return Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: tiles,
+                      children: [
+                        const Spacer(flex: 1),
+                        Flexible(
+                          flex: 4,
+                          child: GridView.count(
+                            shrinkWrap: true,
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 15,
+                            crossAxisSpacing: 15,
+                            children: tiles,
+                          ),
+                        ),
+                        const Spacer(flex: 1),
+                      ],
                     );
                   },
                 ),
