@@ -15,9 +15,9 @@ final List<Game> games = [
       (ctx) => const GameCellophane()),
   Game("rgb_dissolve", "컬러", "삼원색 분해", Icons.remove_red_eye, "매우 어려움", "특정 RGB 요소의 비율 찾아내기",
       (ctx) => const GameFindRGB()),
-  Game("key_press", "컬러", "Key Press", Icons.keyboard, "쉬움", "key input", (ctx) => const GameKeyPress()),
   Game('color_lerp', "컬러", "색 합성", Icons.width_normal_outlined, "어려움", "주어지는 색들을 사용해 목표 색을 합성해내세요.",
       (ctx) => const GameColorLerp()),
+  Game("key_press", "키보드", "Key Press", Icons.keyboard, "쉬움", "key input", (ctx) => const GameKeyPress()),
   Game("color1", "컬러", "테스트", Icons.travel_explore_sharp, "테스트 게임", "test game", (ctx) => const ColorGame())
 ];
 final gamesCount = games.length;

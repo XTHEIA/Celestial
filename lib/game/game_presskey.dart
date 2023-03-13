@@ -43,8 +43,9 @@ class _GameKeyPressState extends State<GameKeyPress> {
         break;
       case _State.GAMING:
         body = Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(key),
+            Text(key, style: TextStyle(fontSize: 80)),
             Text('last took $lastTook ms'),
             Text('focus : ${focusNode.hasFocus}'),
           ],
@@ -55,7 +56,7 @@ class _GameKeyPressState extends State<GameKeyPress> {
     return KeyboardListener(
       autofocus: true,
       focusNode: focusNode,
-      child: body,
+      child: Center(child: body),
       onKeyEvent: (keyEvent) {
         final keyChar = keyEvent.character;
         if (keyChar != null) {

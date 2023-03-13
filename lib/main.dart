@@ -65,9 +65,10 @@ class _CelestialHomeState extends State<CelestialHome> {
   late final Map<String, String> initialQueries, queries;
   final List<_Tab> tabs = [];
   late _Tab currentTab;
-  bool isDarkMode = false;
+  _Tab? hoveringTab = null;
+  bool isDarkMode = true;
   late ThemeData themeData = (isDarkMode ? ThemeData.dark() : ThemeData.light()).copyWith(
-    primaryColor: Color.fromARGB(255, 0, 93, 33),
+    primaryColor: Color.fromARGB(255, 52, 241, 9),
   );
 
   void setTheme(bool isDarkMode, ThemeData data) {
@@ -222,17 +223,21 @@ class _CelestialHomeState extends State<CelestialHome> {
                             itemCount: tabs.length,
                             itemBuilder: (ctx, idx) {
                               final tab = tabs[idx];
+                              final isHovering = tab == hoveringTab;
                               final isSelected = tab == currentTab;
+                              final color = themeData.primaryColor;
+                              //(isDarkMode ? themeData.primaryColorLight : themeData.primaryColorDark);
                               // TODO 이것도 PageGames처럼 마우스 올리면 늘어나는 효과..?
                               return AnimatedContainer(
-                                duration: Duration(milliseconds: 200),
+                                duration: Duration(milliseconds: 100),
+                                height: (isHovering || isSelected) ? 100 : 85,
                                 child: InkWell(
+                                  onHover: (b) => setState(() => hoveringTab = tab),
                                   onTap: () => setState(() => currentTab = tab),
                                   child: Container(
                                     color: isSelected
-                                        ? Color.lerp(themeData.scaffoldBackgroundColor, themeData.primaryColor, 0.3)
+                                        ? Color.lerp(themeData.scaffoldBackgroundColor, color, 0.25)
                                         : Colors.transparent,
-                                    height: 85,
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       mainAxisAlignment: MainAxisAlignment.center,
@@ -240,9 +245,11 @@ class _CelestialHomeState extends State<CelestialHome> {
                                       children: [
                                         Icon(
                                           tab.iconData,
+                                          color: color,
                                         ),
                                         Text(
                                           tab.name,
+                                          style: TextStyle(color: color),
                                         ),
                                       ],
                                     ),
@@ -259,7 +266,8 @@ class _CelestialHomeState extends State<CelestialHome> {
                   Column(
                     children: [
                       MaterialButton(
-                        color: themeData.colorScheme.background,
+                        color: themeData.scaffoldBackgroundColor,
+                        child: Text(isDarkMode ? 'DARK' : 'LIGHT'),
                         onPressed: () => setState(() {
                           themeData = !(isDarkMode = !isDarkMode)
                               ? ThemeData.light().copyWith(primaryColor: themeData.primaryColor)
@@ -268,6 +276,7 @@ class _CelestialHomeState extends State<CelestialHome> {
                       ),
                       MaterialButton(
                         color: themeData.primaryColor,
+                        child: Text('#' + themeData.primaryColor.value.toRadixString(16)),
                         onPressed: () => setState(() => themeData = themeData.copyWith(
                               primaryColor: Color.fromRGBO(
                                   Random().nextInt(255), Random().nextInt(255), Random().nextInt(255), 1),
@@ -318,15 +327,6 @@ MaterialButton createGameStartButton({void Function()? onPressed}) {
     minWidth: 200,
     color: Colors.blue,
     child: const Text("START"),
-  );
-}
-
-MaterialButton createCellophane(Color color, void Function() onPressed) {
-  return MaterialButton(
-    height: 100,
-    minWidth: 100,
-    color: color,
-    onPressed: onPressed,
   );
 }
 

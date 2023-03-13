@@ -89,8 +89,10 @@ class _GamesPageState extends State<GamesPage> {
   Widget build(BuildContext context) {
     final themeData = Theme.of(context);
     final primaryColor = themeData.primaryColor;
-    if (pageState == _PageState.selected_game || pageState == _PageState.play_game) {
+    if (pageState == _PageState.selected_game) {
       pushURL("?tab=games&selected=${targetGame!.id}");
+    } else if (pageState == _PageState.play_game) {
+      pushURL("?tab=games&play=${targetGame!.id}");
     }
     // else if (pageState == _PageState.play_game) {
     //   pushURL("?tab=games&play=${targetGame!.id}");
@@ -137,7 +139,7 @@ class _GamesPageState extends State<GamesPage> {
                         height = 220;
                         break;
                       case _PageState.play_game:
-                        height = 500;
+                        height = 220;
                         break;
                     }
                   } else {
@@ -264,7 +266,7 @@ class _GamesPageState extends State<GamesPage> {
                                       ],
                                     ),
                                     // Play 버튼
-                                    isThis(_PageState.selected_game)
+                                    isThis(_PageState.selected_game) || isThis(_PageState.play_game)
                                         ? Row(
                                             children: [
                                               // IconButton(
@@ -278,7 +280,7 @@ class _GamesPageState extends State<GamesPage> {
                                                   splashColor: Colors.transparent,
                                                   color: primaryColor,
                                                   onPressed: () {
-                                                    _selectGameCard(game);
+                                                    _playGameCard(game);
                                                     Navigator.push(
                                                         context,
                                                         PageRouteBuilder(
