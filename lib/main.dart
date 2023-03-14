@@ -68,7 +68,7 @@ class _CelestialHomeState extends State<CelestialHome> {
   _Tab? hoveringTab = null;
   bool isDarkMode = true;
   late ThemeData themeData = (isDarkMode ? ThemeData.dark() : ThemeData.light()).copyWith(
-    primaryColor: Color.fromARGB(255, 52, 241, 9),
+    primaryColor: Colors.tealAccent,
   );
 
   void setTheme(bool isDarkMode, ThemeData data) {

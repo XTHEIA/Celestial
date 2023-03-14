@@ -125,21 +125,16 @@ class _GameColorLerpState extends State<GameColorLerp> {
                       //   tiles.add(const SizedBox(width: 10));
                       // }
                     }
-                    return Row(
-                      children: [
-                        const Spacer(flex: 1),
-                        Flexible(
-                          flex: 4,
-                          child: GridView.count(
-                            shrinkWrap: true,
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 15,
-                            crossAxisSpacing: 15,
-                            children: tiles,
-                          ),
-                        ),
-                        const Spacer(flex: 1),
-                      ],
+                    return SizedBox(
+                      width: 445,
+                      child: GridView.count(
+
+                        shrinkWrap: true,
+                        crossAxisCount: 4,
+                        mainAxisSpacing: 15,
+                        crossAxisSpacing: 15,
+                        children: tiles,
+                      ),
                     );
                   },
                 ),
