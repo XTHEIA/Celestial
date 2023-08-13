@@ -17,6 +17,7 @@ class GameFindRGB extends StatefulWidget {
 
 class _GameFindRGBState extends State<GameFindRGB> {
   int score = 0;
+  int answerWas = 0;
   _State gameState = _State.READY;
 
   @override
@@ -44,7 +45,10 @@ class _GameFindRGBState extends State<GameFindRGB> {
               if (isAnswer) {
                 setState(() => this.score += newQuestion.difficulty);
               } else {
-                setState(() => gameState = _State.OVER);
+                setState(() {
+                  gameState = _State.OVER;
+                  answerWas = newQuestion.answerIdx;
+                });
               }
             },
             child: (cheat)
@@ -83,7 +87,14 @@ class _GameFindRGBState extends State<GameFindRGB> {
         );
         break;
       case _State.OVER:
-        body = Text("score is " + score.toString());
+        body = Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("score is " + score.toString()),
+            Text("정답은 ${answerWas + 1}번이었습니다.")
+          ],
+        );
         break;
     }
 
@@ -128,11 +139,14 @@ class _Question {
     final colors = elementValues.map((e) {
       switch (findE) {
         case _RGB.R:
-          return Color.fromARGB(255, e, math.Random().nextInt(256), math.Random().nextInt(256));
+          return Color.fromARGB(
+              255, e, math.Random().nextInt(256), math.Random().nextInt(256));
         case _RGB.G:
-          return Color.fromARGB(255, math.Random().nextInt(256), e, math.Random().nextInt(256));
+          return Color.fromARGB(
+              255, math.Random().nextInt(256), e, math.Random().nextInt(256));
         case _RGB.B:
-          return Color.fromARGB(255, math.Random().nextInt(256), math.Random().nextInt(256), e);
+          return Color.fromARGB(
+              255, math.Random().nextInt(256), math.Random().nextInt(256), e);
       }
     }).toList(growable: false);
 
